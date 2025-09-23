@@ -98,7 +98,7 @@ int wc_Psoc6_Sha1_Sha2_Init(void* sha, wc_psoc6_hash_sha1_sha2_t hash_mode, int 
         // Initialize the PSoC6 hash state and configure the SHA mode
         res = Cy_Crypto_Core_Sha_Init(crypto_base, &((wc_Sha*)sha)->hash_state, CY_CRYPTO_MODE_SHA1, &((wc_Sha*)sha)->sha_buffers);
         // Initialize the hash state to the SHA1 initial values if requested (init_hash set to 1)
-        if ((res == CY_CRYPTO_SUCCESS) && (init_hash == 1)) 
+        if ((res == CY_CRYPTO_SUCCESS) && (init_hash == 1))
             res = Cy_Crypto_Core_Sha_Start(crypto_base, &((wc_Sha*)sha)->hash_state);
         break;
 #endif
@@ -108,13 +108,13 @@ int wc_Psoc6_Sha1_Sha2_Init(void* sha, wc_psoc6_hash_sha1_sha2_t hash_mode, int 
 #if defined(WOLFSSL_SHA224)
     case WC_PSOC6_SHA224:
         res = Cy_Crypto_Core_Sha_Init(crypto_base, &((wc_Sha224*)sha)->hash_state, CY_CRYPTO_MODE_SHA224, &((wc_Sha224*)sha)->sha_buffers);
-        if ((res == CY_CRYPTO_SUCCESS) && (init_hash == 1)) 
+        if ((res == CY_CRYPTO_SUCCESS) && (init_hash == 1))
             res = Cy_Crypto_Core_Sha_Start(crypto_base, &((wc_Sha224*)sha)->hash_state);
         break;
 #endif /* WOLFSSL_SHA224 */
     case WC_PSOC6_SHA256:
         res = Cy_Crypto_Core_Sha_Init(crypto_base, &((wc_Sha256*)sha)->hash_state, CY_CRYPTO_MODE_SHA256, &((wc_Sha256*)sha)->sha_buffers);
-        if ((res == CY_CRYPTO_SUCCESS) && (init_hash == 1)) 
+        if ((res == CY_CRYPTO_SUCCESS) && (init_hash == 1))
             res = Cy_Crypto_Core_Sha_Start(crypto_base, &((wc_Sha256*)sha)->hash_state);
         break;
 #endif /* !NO_SHA256 */
@@ -122,7 +122,7 @@ int wc_Psoc6_Sha1_Sha2_Init(void* sha, wc_psoc6_hash_sha1_sha2_t hash_mode, int 
 #if defined(WOLFSSL_SHA384)
     case WC_PSOC6_SHA384:
         res = Cy_Crypto_Core_Sha_Init(crypto_base, &((wc_Sha384*)sha)->hash_state, CY_CRYPTO_MODE_SHA384, &((wc_Sha384*)sha)->sha_buffers);
-        if ((res == CY_CRYPTO_SUCCESS) && (init_hash == 1)) 
+        if ((res == CY_CRYPTO_SUCCESS) && (init_hash == 1))
             res = Cy_Crypto_Core_Sha_Start(crypto_base, &((wc_Sha384*)sha)->hash_state);
         break;
 #endif /* WOLFSSL_SHA384 */
@@ -130,14 +130,14 @@ int wc_Psoc6_Sha1_Sha2_Init(void* sha, wc_psoc6_hash_sha1_sha2_t hash_mode, int 
 #if defined(WOLFSSL_SHA512)
     case WC_PSOC6_SHA512:
         res = Cy_Crypto_Core_Sha_Init(crypto_base, &((wc_Sha512*)sha)->hash_state, CY_CRYPTO_MODE_SHA512, &((wc_Sha512*)sha)->sha_buffers);
-        if ((res == CY_CRYPTO_SUCCESS) && (init_hash == 1)) 
+        if ((res == CY_CRYPTO_SUCCESS) && (init_hash == 1))
             res = Cy_Crypto_Core_Sha_Start(crypto_base, &((wc_Sha512*)sha)->hash_state);
         break;
 #if !defined(WOLFSSL_NOSHA512_224)
 
     case WC_PSOC6_SHA512_224:
         res = Cy_Crypto_Core_Sha_Init(crypto_base, &((wc_Sha512*)sha)->hash_state, CY_CRYPTO_MODE_SHA512_224, &((wc_Sha512*)sha)->sha_buffers);
-        if ((res == CY_CRYPTO_SUCCESS) && (init_hash == 1)) 
+        if ((res == CY_CRYPTO_SUCCESS) && (init_hash == 1))
             res = Cy_Crypto_Core_Sha_Start(crypto_base, &((wc_Sha512*)sha)->hash_state);
         break;
 #endif /* WOLFSSL_SHA512_224 */
@@ -145,7 +145,7 @@ int wc_Psoc6_Sha1_Sha2_Init(void* sha, wc_psoc6_hash_sha1_sha2_t hash_mode, int 
 #if !defined(WOLFSSL_NOSHA512_256)
     case WC_PSOC6_SHA512_256:
         res = Cy_Crypto_Core_Sha_Init(crypto_base, &((wc_Sha512*)sha)->hash_state, CY_CRYPTO_MODE_SHA512_256, &((wc_Sha512*)sha)->sha_buffers);
-        if ((res == CY_CRYPTO_SUCCESS) && (init_hash == 1)) 
+        if ((res == CY_CRYPTO_SUCCESS) && (init_hash == 1))
             res = Cy_Crypto_Core_Sha_Start(crypto_base, &((wc_Sha512*)sha)->hash_state);
         break;
 #endif /* WOLFSSL_SHA512_256 */
@@ -773,7 +773,7 @@ int wc_Psoc6_Sha3_Final(void* sha3, byte padChar, byte* hash, byte p, word32 l)
 
     // Wait until the instruction is complete
     Cy_Crypto_Core_V2_Sync(crypto_base);
-    
+
     // Process full blocks and write output to hash buffer
     for (offset = 0; l - offset >= rate; offset += rate)
     {
@@ -856,7 +856,7 @@ int wc_Psoc6_Sha3_Final(void* sha3, byte padChar, byte* hash, byte p, word32 l)
             Cy_Crypto_Core_V2_Sync(crypto_base);
 
             // Now the 1st partition have 2nd partition data, start streaming remaining extra data in register buffer into hash buffer
-            Cy_Crypto_Core_V2_FFStart(crypto_base, CY_CRYPTO_V2_RB_FF_STORE, hash + offset + PSOC6_CRYPTO_SHA3_RB_LOWER, 
+            Cy_Crypto_Core_V2_FFStart(crypto_base, CY_CRYPTO_V2_RB_FF_STORE, hash + offset + PSOC6_CRYPTO_SHA3_RB_LOWER,
                 ((l - offset) - PSOC6_CRYPTO_SHA3_RB_LOWER));
 
             // Copy the remaining data in register buffer lower partition into hash buffer
@@ -976,7 +976,7 @@ int psoc6_ecc_verify_hash_ex(MATH_INT_T* r, MATH_INT_T* s, const byte* hash,
 
     if (!key || !verif_res || !r || !s || !hash)
         return -BAD_FUNC_ARG;
-   
+
     // Enable CRYPTO block if not enabled
     if (!Cy_Crypto_Core_IsEnabled(crypto_base))
     {
