@@ -26,9 +26,11 @@
 #include <wolfssl/wolfcrypt/types.h> /* for MATH_INT_T */
 #include <wolfssl/wolfcrypt/wc_port.h>
 
+#if defined(WOLFSSL_PSOC6_CRYPTO)
+
 #include "cy_pdl.h"
 
-#if !defined(NO_WOLFSSL_PSOC6_HASH)
+/* SHA1, SHA2 and SHA3 are supported for PSOC6 */
 #define PSOC6_HASH_SHA1
 #define PSOC6_HASH_SHA2
 #define PSOC6_HASH_SHA3
@@ -43,7 +45,6 @@ typedef enum
     WC_PSOC6_SHA512_224  = 5,
     WC_PSOC6_SHA512_256  = 6,
 } wc_psoc6_hash_sha1_sha2_t;
-#endif /* NO_WOLFSSL_PSOC6_HASH */
 
 #if defined(PSOC6_HASH_SHA1) || defined(PSOC6_HASH_SHA2)
 int wc_Psoc6_Sha1_Sha2_Init(void *sha, wc_psoc6_hash_sha1_sha2_t hash_mode, int init_hash);
@@ -73,5 +74,7 @@ int psoc6_ecc_verify_hash_ex(MATH_INT_T *r, MATH_INT_T *s, const byte* hash,
 
 /* Crypto HW engine initialization */
 int psoc6_crypto_port_init(void);
+
+#endif /* WOLFSSL_PSOC6_CRYPTO */
 
 #endif /* _PSOC6_CRYPTO_PORT_H_ */
