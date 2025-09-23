@@ -68,7 +68,6 @@ In your build configuration or `wolfssl/wolfcrypt/settings.h`:
 #define HAVE_ECC
 ```
 - No need to define `PSOC6_HASH_SHA1`, `PSOC6_HASH_SHA2`, or `PSOC6_HASH_SHA3` yourself; they are defined in `psoc6_crypto.h`.
-- To disable all PSoC6 hardware hash acceleration, define: `NO_WOLFSSL_PSOC6_HASH`. This will prevent PSOC6_HASH_SHA1, PSOC6_HASH_SHA2, and PSOC6_HASH_SHA3 from being defined, disabling all hardware hash support.
 
 ## File Overview
 
