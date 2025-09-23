@@ -8,12 +8,12 @@ This directory provides a hardware-accelerated cryptography port for Cypress PSo
 
 The following hash algorithms are implemented using the PSoC6 hardware crypto block:
 
-- **SHA-1, SHA-224, SHA-256, SHA-384, SHA-512, SHA-512/224, SHA-512/256**  
+- **SHA-1, SHA-224, SHA-256, SHA-384, SHA-512, SHA-512/224, SHA-512/256**
   - All handled by the function `wc_Psoc6_Sha1_Sha2_Init`, which initializes the hardware for the selected hash mode.
   - The macros `PSOC6_HASH_SHA1` and `PSOC6_HASH_SHA2` (defined in `psoc6_crypto.h`) control which SHA-1 and SHA-2 family algorithms are available for hardware acceleration.
   - The corresponding wolfSSL macros (e.g., `WOLFSSL_SHA224`, `WOLFSSL_SHA384`, `WOLFSSL_SHA512`) must also be defined to enable the algorithm in the library.
 
-- **SHA-3 Family**  
+- **SHA-3 Family**
   - Supported if `PSOC6_HASH_SHA3` (defined in `psoc6_crypto.h`) and `WOLFSSL_SHA3` are both defined.
   - Functions: `wc_Psoc6_Sha3_Init`, `wc_Psoc6_Sha3_Update`, `wc_Psoc6_Sha3_Final`
   - SHAKE support: `wc_Psoc6_Shake_SqueezeBlocks`
@@ -23,17 +23,17 @@ All hash operations are offloaded to the PSoC6 hardware, with mutex protection f
 
 ### 2. Hardware-Accelerated ECDSA Verification
 
-- **ECDSA Signature Verification**  
+- **ECDSA Signature Verification**
   - Function: `psoc6_ecc_verify_hash_ex`
   - Uses PSoC6 hardware to verify ECDSA signatures for supported curves (up to secp521r1).
   - Enabled when `HAVE_ECC` is defined.
 
 ### 3. Crypto Block Initialization and Resource Management
 
-- **Initialization**  
+- **Initialization**
   - Function: `psoc6_crypto_port_init`
   - Enables the PSoC6 crypto hardware block.
-- **Resource Cleanup**  
+- **Resource Cleanup**
   - Function: `wc_Psoc6_Sha_Free`
   - Clears and synchronizes the hardware register buffer.
 
@@ -72,9 +72,9 @@ In your build configuration or `wolfssl/wolfcrypt/settings.h`:
 
 ## File Overview
 
-- `psoc6_crypto.h`  
+- `psoc6_crypto.h`
   Header file declaring the hardware crypto interface and configuration macros.
-- `psoc6_crypto.c`  
+- `psoc6_crypto.c`
   Implementation of the hardware-accelerated hash and ECC functions for PSoC6.
 
 ## Integration Notes
