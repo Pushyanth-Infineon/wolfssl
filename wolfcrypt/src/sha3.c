@@ -928,12 +928,12 @@ static int wc_InitSha3(wc_Sha3* sha3, void* heap, int devId)
     (void)devId;
     (void)heap;
 
-    // Lock the mutex to perform crypto operations
+    /* Lock the mutex to perform crypto operations */
     ret = wolfSSL_CryptHwMutexLock();
     if (ret == 0) {
-        // Initialize hash state for SHA-3 operation
+        /* Initialize hash state for SHA-3 operation */
         ret = wc_Psoc6_Sha3_Init(sha3);
-        // Release the lock
+        /* Release the lock */
         wolfSSL_CryptHwMutexUnLock();
     }
 
@@ -953,12 +953,12 @@ static int wc_Sha3Update(wc_Sha3* sha3, const byte* data, word32 len, byte p)
         return 0;
     }
 
-    // Lock the mutex to perform crypto operations
+    /* Lock the mutex to perform crypto operations */
     ret = wolfSSL_CryptHwMutexLock();
     if (ret == 0) {
-        // Perform SHA3 on the input data and update the hash state
+        /* Perform SHA3 on the input data and update the hash state */
         ret = wc_Psoc6_Sha3_Update(sha3, data, len, p);
-        // Release the lock
+        /* Release the lock */
         wolfSSL_CryptHwMutexUnLock();
     }
 
@@ -973,16 +973,16 @@ static int wc_Sha3Final(wc_Sha3* sha3, byte* hash, byte p, byte len)
         return BAD_FUNC_ARG;
     }
 
-    // Lock the mutex to perform crypto operations
+    /* Lock the mutex to perform crypto operations */
     ret = wolfSSL_CryptHwMutexLock();
     if (ret == 0) {
-        // Finalize SHA3 operations and produce digest
+        /* Finalize SHA3 operations and produce digest */
         ret = wc_Psoc6_Sha3_Final(sha3, 0x06, hash, p, len);
         if (ret == 0) {
-            // Initialize hash state for SHA-3 operation
+            /* Initialize hash state for SHA-3 operation */
             ret = wc_Psoc6_Sha3_Init(sha3);
         }
-        // Release the lock
+        /* Release the lock */
         wolfSSL_CryptHwMutexUnLock();
     }
 
@@ -1181,7 +1181,7 @@ static int wc_Sha3Copy(wc_Sha3* src, wc_Sha3* dst)
 #endif
 
 #if defined(PSOC6_HASH_SHA3)
-    // Re-initialize internal pointers in hash_state that point inside sha_buffers
+    /* Re-initialize internal pointers in hash_state that point inside sha_buffers */
     dst->hash_state.hash = (uint8_t*)((cy_stc_crypto_v2_sha3_buffers_t *)&dst->sha_buffers)->hash;
 #endif
 
@@ -1548,12 +1548,12 @@ int wc_Shake128_Update(wc_Shake* shake, const byte* data, word32 len)
         return 0;
     }
 
-    // Lock the mutex to perform crypto operations
+    /* Lock the mutex to perform crypto operations */
     ret = wolfSSL_CryptHwMutexLock();
     if (ret == 0) {
-        // Perform SHA3 on the input data and update the hash state
+        /* Perform SHA3 on the input data and update the hash state */
         ret = wc_Psoc6_Sha3_Update(shake, data, len, WC_SHA3_128_COUNT);
-        // Release the lock
+        /* Release the lock */
         wolfSSL_CryptHwMutexUnLock();
     }
 
@@ -1568,16 +1568,16 @@ int wc_Shake128_Final(wc_Shake* shake, byte* hash, word32 hashLen)
         return BAD_FUNC_ARG;
     }
 
-    // Lock the mutex to perform crypto operations
+    /* Lock the mutex to perform crypto operations */
     ret = wolfSSL_CryptHwMutexLock();
     if (ret == 0) {
-        // Finalize SHA3 operations and produce digest
+        /* Finalize SHA3 operations and produce digest */
         ret = wc_Psoc6_Sha3_Final(shake, 0x1f, hash, WC_SHA3_128_COUNT, hashLen);
         if (ret == 0) {
-            // Initialize hash state for SHA-3 operation
+            /* Initialize hash state for SHA-3 operation */
             ret = wc_Psoc6_Sha3_Init(shake);
         }
-        // Release the lock
+        /* Release the lock */
         wolfSSL_CryptHwMutexUnLock();
     }
 
@@ -1593,17 +1593,17 @@ int wc_Shake128_Absorb(wc_Shake* shake, const byte* data, word32 len)
         return BAD_FUNC_ARG;
     }
 
-    // Lock the mutex to perform crypto operations
+    /* Lock the mutex to perform crypto operations */
     ret = wolfSSL_CryptHwMutexLock();
     if (ret == 0) {
-        // Perform SHA3 on the input data and update the hash state
+        /* Perform SHA3 on the input data and update the hash state */
         ret = wc_Psoc6_Sha3_Update(shake, data, len, WC_SHA3_128_COUNT);
         if (ret == 0) {
             byte hash[1];
-            // Finalize SHA3 operations and produce digest
+            /* Finalize SHA3 operations and produce digest */
             ret = wc_Psoc6_Sha3_Final(shake, 0x1f, hash, WC_SHA3_128_COUNT, 0);
         }
-        // Release the lock
+        /* Release the lock */
         wolfSSL_CryptHwMutexUnLock();
     }
 
@@ -1618,12 +1618,12 @@ int wc_Shake128_SqueezeBlocks(wc_Shake* shake, byte* out, word32 blockCnt)
         return BAD_FUNC_ARG;
     }
 
-    // Lock the mutex to perform crypto operations
+    /* Lock the mutex to perform crypto operations */
     ret = wolfSSL_CryptHwMutexLock();
     if (ret == 0) {
-        // Squeeze output blocks from current hash state
+        /* Squeeze output blocks from current hash state */
         ret = wc_Psoc6_Shake_SqueezeBlocks(shake, out, blockCnt);
-        // Release the lock
+        /* Release the lock */
         wolfSSL_CryptHwMutexUnLock();
     }
 
@@ -1798,12 +1798,12 @@ int wc_Shake256_Update(wc_Shake* shake, const byte* data, word32 len)
         return 0;
     }
 
-    // Lock the mutex to perform crypto operations
+    /* Lock the mutex to perform crypto operations */
     ret = wolfSSL_CryptHwMutexLock();
     if (ret == 0) {
-        // Perform SHA3 on the input data and update the hash state
+        /* Perform SHA3 on the input data and update the hash state */
         ret = wc_Psoc6_Sha3_Update(shake, data, len, WC_SHA3_256_COUNT);
-        // Release the lock
+        /* Release the lock */
         wolfSSL_CryptHwMutexUnLock();
     }
 
@@ -1817,16 +1817,16 @@ int wc_Shake256_Final(wc_Shake* shake, byte* hash, word32 hashLen)
         return BAD_FUNC_ARG;
     }
 
-    // Lock the mutex to perform crypto operations
+    /* Lock the mutex to perform crypto operations */
     ret = wolfSSL_CryptHwMutexLock();
     if (ret == 0) {
-        // Finalize SHA3 operations and produce digest
+        /* Finalize SHA3 operations and produce digest */
         ret = wc_Psoc6_Sha3_Final(shake, 0x1f, hash, WC_SHA3_256_COUNT, hashLen);
         if (ret == 0) {
-            // Initialize hash state for SHA-3 operation
+            /* Initialize hash state for SHA-3 operation */
             ret = wc_Psoc6_Sha3_Init(shake);
         }
-        // Release the lock
+        /* Release the lock */
         wolfSSL_CryptHwMutexUnLock();
     }
 
@@ -1841,17 +1841,17 @@ int wc_Shake256_Absorb(wc_Shake* shake, const byte* data, word32 len)
         return BAD_FUNC_ARG;
     }
 
-    // Lock the mutex to perform crypto operations
+    /* Lock the mutex to perform crypto operations */
     ret = wolfSSL_CryptHwMutexLock();
     if (ret == 0) {
-        // Perform SHA3 on the input data and update the hash state
+        /* Perform SHA3 on the input data and update the hash state */
         ret = wc_Psoc6_Sha3_Update(shake, data, len, WC_SHA3_256_COUNT);
         if (ret == 0) {
             byte hash[1];
-            // Finalize SHA3 operations and produce digest
+            /* Finalize SHA3 operations and produce digest */
             ret = wc_Psoc6_Sha3_Final(shake, 0x1f, hash, WC_SHA3_256_COUNT, 0);
         }
-        // Release the lock
+        /* Release the lock */
         wolfSSL_CryptHwMutexUnLock();
     }
 
@@ -1865,12 +1865,12 @@ int wc_Shake256_SqueezeBlocks(wc_Shake* shake, byte* out, word32 blockCnt)
         return BAD_FUNC_ARG;
     }
 
-    // Lock the mutex to perform crypto operations
+    /* Lock the mutex to perform crypto operations */
     ret = wolfSSL_CryptHwMutexLock();
     if (ret == 0) {
-        // Squeeze output blocks from current hash state
+        /* Squeeze output blocks from current hash state */
         ret = wc_Psoc6_Shake_SqueezeBlocks(shake, out, blockCnt);
-        // Release the lock
+        /* Release the lock */
         wolfSSL_CryptHwMutexUnLock();
     }
 
