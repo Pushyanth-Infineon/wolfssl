@@ -50,13 +50,13 @@
 
 #if defined(PSOC6_HASH_SHA3)
 
-// Number of bits in a byte
+/* Number of bits in a byte */
 #define BITS_IN_BYTE 8U
 
-// Number of bytes of SHA3 to store in 1st partition of register buffer (reg_buff[1023:0])
+/* Number of bytes of SHA3 to store in 1st partition of register buffer (reg_buff[1023:0]) */
 #define PSOC6_CRYPTO_SHA3_RB_LOWER 128U
 
-// Number of bytes of SHA3 to store in 2nd partition of register buffer (reg_buff[2047:1024])
+/* Number of bytes of SHA3 to store in 2nd partition of register buffer (reg_buff[2047:1024]) */
 #define PSOC6_CRYPTO_SHA3_RB_UPPER 72U
 
 #endif /* PSOC6_HASH_SHA3 */
@@ -85,7 +85,7 @@ int wc_Psoc6_Sha1_Sha2_Init(void* sha, wc_psoc6_hash_sha1_sha2_t hash_mode, int 
         return BAD_FUNC_ARG;
     }
 
-    // Enable CRYPTO block if not enabled
+    /* Enable CRYPTO block if not enabled */
     if (!Cy_Crypto_Core_IsEnabled(crypto_base))
     {
         Cy_Crypto_Core_Enable(crypto_base);
@@ -95,9 +95,9 @@ int wc_Psoc6_Sha1_Sha2_Init(void* sha, wc_psoc6_hash_sha1_sha2_t hash_mode, int 
     {
 #if !defined(NO_SHA) && defined(PSOC6_HASH_SHA1)
     case WC_PSOC6_SHA1:
-        // Initialize the PSoC6 hash state and configure the SHA mode
+        /* Initialize the PSoC6 hash state and configure the SHA mode */
         res = Cy_Crypto_Core_Sha_Init(crypto_base, &((wc_Sha*)sha)->hash_state, CY_CRYPTO_MODE_SHA1, &((wc_Sha*)sha)->sha_buffers);
-        // Initialize the hash state to the SHA1 initial values if requested (init_hash set to 1)
+        /* Initialize the hash state to the SHA1 initial values if requested (init_hash set to 1) */
         if ((res == CY_CRYPTO_SUCCESS) && (init_hash == 1))
             res = Cy_Crypto_Core_Sha_Start(crypto_base, &((wc_Sha*)sha)->hash_state);
         break;
@@ -167,10 +167,10 @@ int wc_Psoc6_Sha1_Sha2_Init(void* sha, wc_psoc6_hash_sha1_sha2_t hash_mode, int 
  */
 void wc_Psoc6_Sha_Free(void)
 {
-    // Clear the register buffer
+    /* Clear the register buffer */
     Cy_Crypto_Core_V2_RBClear(crypto_base);
 
-    // Wait until the instruction is complete
+    /* Wait until the instruction is complete */
     Cy_Crypto_Core_V2_Sync(crypto_base);
 }
 
@@ -185,12 +185,12 @@ int wc_InitSha_ex(wc_Sha* sha, void* heap, int devid)
 
     (void)heap;
     XMEMSET(sha, 0, sizeof(wc_Sha));
-    // Lock the mutex to perform crypto operations
+    /* Lock the mutex to perform crypto operations */
     ret = wolfSSL_CryptHwMutexLock();
     if (ret == 0) {
-        // Initialize the PSoC6 hash buffers for SHA1
+        /* Initialize the PSoC6 hash buffers for SHA1 */
         ret = wc_Psoc6_Sha1_Sha2_Init(sha, WC_PSOC6_SHA1, 1);
-        // Release the lock
+        /* Release the lock */
         wolfSSL_CryptHwMutexUnLock();
     }
     return ret;
@@ -205,16 +205,16 @@ int wc_ShaUpdate(wc_Sha* sha, const byte* in, word32 sz)
     }
 
     if (in == NULL && sz == 0) {
-        // valid, but do nothing
+        /* valid, but do nothing */
         return 0;
     }
 
-    // Lock the mutex to perform crypto operations
+    /* Lock the mutex to perform crypto operations */
     ret = wolfSSL_CryptHwMutexLock();
     if (ret == 0) {
-        // Perform the SHA calculation input data
+        /* Perform the SHA calculation input data */
         ret = Cy_Crypto_Core_Sha_Update(crypto_base, &sha->hash_state, in, sz);
-        // Release the lock
+        /* Release the lock */
         wolfSSL_CryptHwMutexUnLock();
     }
     return ret;
@@ -227,19 +227,19 @@ int wc_ShaFinal(wc_Sha* sha, byte* hash)
     if (sha == NULL || hash == NULL)
         return BAD_FUNC_ARG;
 
-    // Lock the mutex to perform crypto operations
+    /* Lock the mutex to perform crypto operations */
     ret = wolfSSL_CryptHwMutexLock();
     if (ret == 0) {
-        // Complete the SHA calculation
+        /* Complete the SHA calculation */
         ret = (int)Cy_Crypto_Core_Sha_Finish(crypto_base, &sha->hash_state, hash);
-        // Release the lock
+        /* Release the lock */
         wolfSSL_CryptHwMutexUnLock();
     }
 
     if (ret != 0)
         return ret;
 
-    // Reset state
+    /* Reset state */
     return wc_InitSha(sha);
 }
 
@@ -260,12 +260,12 @@ int wc_InitSha256_ex(wc_Sha256* sha, void* heap, int devid)
     (void)heap;
     (void)devid;
     XMEMSET(sha, 0, sizeof(wc_Sha256));
-    // Lock the mutex to perform crypto operations
+    /* Lock the mutex to perform crypto operations */
     ret = wolfSSL_CryptHwMutexLock();
     if (ret == 0) {
-        // Initialize the PSoC6 hash buffers for SHA256
+        /* Initialize the PSoC6 hash buffers for SHA256 */
         ret = wc_Psoc6_Sha1_Sha2_Init(sha, WC_PSOC6_SHA256, 1);
-        // Release the lock
+        /* Release the lock */
         wolfSSL_CryptHwMutexUnLock();
     }
     return ret;
@@ -279,16 +279,16 @@ int wc_Sha256Update(wc_Sha256* sha, const byte* in, word32 sz)
     }
 
     if (in == NULL && sz == 0) {
-        // valid, but do nothing
+        /* valid, but do nothing */
         return 0;
     }
 
-    // Lock the mutex to perform crypto operations
+    /* Lock the mutex to perform crypto operations */
     ret = wolfSSL_CryptHwMutexLock();
     if (ret == 0) {
-        // Perform the SHA calculation input data
+        /* Perform the SHA calculation input data */
         ret = Cy_Crypto_Core_Sha_Update(crypto_base, &sha->hash_state, in, sz);
-        // Release the lock
+        /* Release the lock */
         wolfSSL_CryptHwMutexUnLock();
     }
 
@@ -301,19 +301,19 @@ int wc_Sha256Final(wc_Sha256* sha, byte* hash)
     if (sha == NULL || hash == NULL)
         return BAD_FUNC_ARG;
 
-    // Lock the mutex to perform crypto operations
+    /* Lock the mutex to perform crypto operations */
     ret = wolfSSL_CryptHwMutexLock();
     if (ret == 0) {
-        // Complete the SHA calculation
+        /* Complete the SHA calculation */
         ret = (int)Cy_Crypto_Core_Sha_Finish(crypto_base, &sha->hash_state, hash);
-        // Release the lock
+        /* Release the lock */
         wolfSSL_CryptHwMutexUnLock();
     }
 
     if (ret != 0)
         return ret;
 
-    // Reset state
+    /* Reset state */
     return wc_InitSha256(sha);
 }
 
@@ -329,12 +329,12 @@ int wc_InitSha224_ex(wc_Sha224* sha, void* heap, int devid)
     (void)heap;
     (void)devid;
     XMEMSET(sha, 0, sizeof(wc_Sha224));
-    // Lock the mutex to perform crypto operations
+    /* Lock the mutex to perform crypto operations */
     ret = wolfSSL_CryptHwMutexLock();
     if (ret == 0) {
-        // Initialize the PSoC6 hash buffers for SHA224
+        /* Initialize the PSoC6 hash buffers for SHA224 */
         ret = wc_Psoc6_Sha1_Sha2_Init(sha, WC_PSOC6_SHA224, 1);
-        // Release the lock
+        /* Release the lock */
         wolfSSL_CryptHwMutexUnLock();
     }
     return ret;
@@ -348,16 +348,16 @@ int wc_Sha224Update(wc_Sha224* sha, const byte* in, word32 sz)
     }
 
     if (in == NULL && sz == 0) {
-        // valid, but do nothing
+        /* valid, but do nothing */
         return 0;
     }
 
-    // Lock the mutex to perform crypto operations
+    /* Lock the mutex to perform crypto operations */
     ret = wolfSSL_CryptHwMutexLock();
     if (ret == 0) {
-        // Perform the SHA calculation input data
+        /* Perform the SHA calculation input data */
         ret = Cy_Crypto_Core_Sha_Update(crypto_base, &sha->hash_state, in, sz);
-        // Release the lock
+        /* Release the lock */
         wolfSSL_CryptHwMutexUnLock();
     }
 
@@ -370,19 +370,19 @@ int wc_Sha224Final(wc_Sha224* sha, byte* hash)
     if (sha == NULL || hash == NULL)
         return BAD_FUNC_ARG;
 
-    // Lock the mutex to perform crypto operations
+    /* Lock the mutex to perform crypto operations */
     ret = wolfSSL_CryptHwMutexLock();
     if (ret == 0) {
-        // Complete the SHA calculation
+        /* Complete the SHA calculation */
         ret = (int)Cy_Crypto_Core_Sha_Finish(crypto_base, &sha->hash_state, hash);
-        // Release the lock
+        /* Release the lock */
         wolfSSL_CryptHwMutexUnLock();
     }
 
     if (ret != 0)
         return ret;
 
-    // Reset state
+    /* Reset state */
     return wc_InitSha224(sha);
 }
 
@@ -401,12 +401,12 @@ int wc_InitSha384_ex(wc_Sha384* sha, void* heap, int devid)
     (void)heap;
     (void)devid;
     XMEMSET(sha, 0, sizeof(wc_Sha384));
-    // Lock the mutex to perform crypto operations
+    /* Lock the mutex to perform crypto operations */
     ret = wolfSSL_CryptHwMutexLock();
     if (ret == 0) {
-        // Initialize the PSoC6 hash buffers for SHA384
+        /* Initialize the PSoC6 hash buffers for SHA384 */
         ret = wc_Psoc6_Sha1_Sha2_Init(sha, WC_PSOC6_SHA384, 1);
-        // Release the lock
+        /* Release the lock */
         wolfSSL_CryptHwMutexUnLock();
     }
     return ret;
@@ -420,16 +420,16 @@ int wc_Sha384Update(wc_Sha384* sha, const byte* in, word32 sz)
     }
 
     if (in == NULL && sz == 0) {
-        // valid, but do nothing
+        /* valid, but do nothing */
         return 0;
     }
 
-    // Lock the mutex to perform crypto operations
+    /* Lock the mutex to perform crypto operations */
     ret = wolfSSL_CryptHwMutexLock();
     if (ret == 0) {
-        // Perform the SHA calculation input data
+        /* Perform the SHA calculation input data */
         ret = Cy_Crypto_Core_Sha_Update(crypto_base, &sha->hash_state, in, sz);
-        // Release the lock
+        /* Release the lock */
         wolfSSL_CryptHwMutexUnLock();
     }
     return ret;
@@ -442,19 +442,19 @@ int wc_Sha384Final(wc_Sha384* sha, byte* hash)
     if (sha == NULL || hash == NULL)
         return BAD_FUNC_ARG;
 
-    // Lock the mutex to perform crypto operations
+    /* Lock the mutex to perform crypto operations */
         ret = wolfSSL_CryptHwMutexLock();
     if (ret == 0) {
-        // Complete the SHA calculation
+        /* Complete the SHA calculation */
         ret = (int)Cy_Crypto_Core_Sha_Finish(crypto_base, &sha->hash_state, hash);
-        // Release the lock
+        /* Release the lock */
         wolfSSL_CryptHwMutexUnLock();
     }
 
     if (ret != 0)
         return ret;
 
-    // Reset state
+    /* Reset state */
     return wc_InitSha384(sha);
 }
 
@@ -469,12 +469,12 @@ int wc_InitSha512_ex(wc_Sha512* sha, void* heap, int devid)
     (void)heap;
     (void)devid;
     XMEMSET(sha, 0, sizeof(wc_Sha512));
-    // Lock the mutex to perform crypto operations
+    /* Lock the mutex to perform crypto operations */
     ret = wolfSSL_CryptHwMutexLock();
     if (ret == 0) {
-        // Initialize the PSoC6 hash buffers for SHA512
+        /* Initialize the PSoC6 hash buffers for SHA512 */
         ret = wc_Psoc6_Sha1_Sha2_Init(sha, WC_PSOC6_SHA512, 1);
-        // Release the lock
+        /* Release the lock */
         wolfSSL_CryptHwMutexUnLock();
     }
     return ret;
@@ -488,16 +488,16 @@ int wc_Sha512Update(wc_Sha512* sha, const byte* in, word32 sz)
     }
 
     if (in == NULL && sz == 0) {
-        // valid, but do nothing
+        /* valid, but do nothing */
         return 0;
     }
 
-    // Lock the mutex to perform crypto operations
+    /* Lock the mutex to perform crypto operations */
     ret = wolfSSL_CryptHwMutexLock();
     if (ret == 0) {
-        // Perform the SHA calculation input data
+        /* Perform the SHA calculation input data */
         ret = Cy_Crypto_Core_Sha_Update(crypto_base, &sha->hash_state, in, sz);
-        // Release the lock
+        /* Release the lock */
         wolfSSL_CryptHwMutexUnLock();
     }
     return ret;
@@ -509,19 +509,19 @@ int wc_Sha512Final(wc_Sha512* sha, byte* hash)
     if (sha == NULL || hash == NULL)
         return BAD_FUNC_ARG;
 
-    // Lock the mutex to perform crypto operations
+    /* Lock the mutex to perform crypto operations */
     ret = wolfSSL_CryptHwMutexLock();
     if (ret == 0) {
-        // Complete the SHA calculation
+        /* Complete the SHA calculation */
         ret = (int)Cy_Crypto_Core_Sha_Finish(crypto_base, &sha->hash_state, hash);
-        // Release the lock
+        /* Release the lock */
         wolfSSL_CryptHwMutexUnLock();
     }
 
     if (ret != 0)
         return ret;
 
-    // Reset state
+    /* Reset state */
     return wc_InitSha512(sha);
 }
 
@@ -538,12 +538,12 @@ int wc_InitSha512_224_ex(wc_Sha512* sha, void* heap, int devid)
     (void)heap;
     (void)devid;
     XMEMSET(sha, 0, sizeof(wc_Sha512));
-    // Lock the mutex to perform crypto operations
+    /* Lock the mutex to perform crypto operations */
     ret = wolfSSL_CryptHwMutexLock();
     if (ret == 0) {
-        // Initialize the PSoC6 hash buffers for SHA512_224
+        /* Initialize the PSoC6 hash buffers for SHA512_224 */
         ret = wc_Psoc6_Sha1_Sha2_Init(sha, WC_PSOC6_SHA512_224, 1);
-        // Release the lock
+        /* Release the lock */
         wolfSSL_CryptHwMutexUnLock();
     }
     return ret;
@@ -561,17 +561,17 @@ int wc_Sha512_224Final(wc_Sha512* sha, byte* hash)
     if (sha == NULL || hash == NULL)
         return BAD_FUNC_ARG;
 
-    // Lock the mutex to perform crypto operations
+    /* Lock the mutex to perform crypto operations */
     ret = wolfSSL_CryptHwMutexLock();
     if (ret == 0)
     {
-        // Complete the SHA calculation
+        /* Complete the SHA calculation */
         ret = (int)Cy_Crypto_Core_Sha_Finish(crypto_base, &sha->hash_state, hash);
-        // Release the lock
+        /* Release the lock */
         wolfSSL_CryptHwMutexUnLock();
     }
 
-    // Reset state
+    /* Reset state */
     return wc_InitSha512_224(sha);
 }
 
@@ -591,12 +591,12 @@ int wc_InitSha512_256_ex(wc_Sha512* sha, void* heap, int devid)
     (void)heap;
     (void)devid;
     XMEMSET(sha, 0, sizeof(wc_Sha512));
-    // Lock the mutex to perform crypto operations
+    /* Lock the mutex to perform crypto operations */
     ret = wolfSSL_CryptHwMutexLock();
     if (ret == 0) {
-        // Initialize the PSoC6 hash buffers for SHA512_256
+        /* Initialize the PSoC6 hash buffers for SHA512_256 */
         ret = wc_Psoc6_Sha1_Sha2_Init(sha, WC_PSOC6_SHA512_256, 1);
-        // Release the lock
+        /* Release the lock */
         wolfSSL_CryptHwMutexUnLock();
     }
     return ret;
@@ -614,18 +614,18 @@ int wc_Sha512_256Final(wc_Sha512* sha, byte* hash)
     if (sha == NULL || hash == NULL)
         return BAD_FUNC_ARG;
 
-    // Lock the mutex to perform crypto operations
+    /* Lock the mutex to perform crypto operations */
     ret = wolfSSL_CryptHwMutexLock();
     if (ret == 0) {
-        // Complete the SHA calculation
+        /* Complete the SHA calculation */
         ret = (int)Cy_Crypto_Core_Sha_Finish(crypto_base, &sha->hash_state, hash);
-        // Release the lock
+        /* Release the lock */
         wolfSSL_CryptHwMutexUnLock();
     }
     if (ret != 0)
         return ret;
 
-    // Reset state
+    /* Reset state */
     return wc_InitSha512_256(sha);
 }
 
@@ -645,26 +645,26 @@ int wc_Psoc6_Sha3_Init(void* sha3)
 {
     wc_Sha3* sha3_ctx = (wc_Sha3*)sha3;
 
-    // Enable CRYPTO block if not enabled
+    /* Enable CRYPTO block if not enabled */
     if (!Cy_Crypto_Core_IsEnabled(crypto_base))
     {
         Cy_Crypto_Core_Enable(crypto_base);
     }
 
-    // Clear the data in sha3 structure
+    /* Clear the data in sha3 structure */
     Cy_Crypto_Core_MemSet(crypto_base, sha3, 0, sizeof(wc_Sha3));
 
-    // Initialise the hash pointer in hash_state structure
+    /* Initialise the hash pointer in hash_state structure */
     sha3_ctx->hash_state.hash = (uint8_t*)((cy_stc_crypto_v2_sha3_buffers_t *)&sha3_ctx->sha_buffers)->hash;
 
-    // Set the SHA mode to SHA3
+    /* Set the SHA mode to SHA3 */
     sha3_ctx->hash_state.modeHw = (uint32_t)CY_CRYPTO_V2_SHA3_OPC;
 
-    // Initialize the hashsize to 0
+    /* Initialize the hashsize to 0 */
     sha3_ctx->hash_state.hashSize = 0;
 
-    // Set the init_done flag to false. It will be updated in
-    // Sha3Update once the mode and blockSize are updated
+    /* Set the init_done flag to false. It will be updated in */
+    /* Sha3Update once the mode and blockSize are updated */
     sha3_ctx->init_done = false;
 
     return 0;
@@ -682,14 +682,14 @@ int wc_Psoc6_Sha3_Update(void* sha3, const byte* data, word32 len, byte p)
 {
     wc_Sha3* sha3_ctx = (wc_Sha3*)sha3;
 
-    // If the initialization is not done, set it up
+    /* If the initialization is not done, set it up */
     if (!sha3_ctx->init_done)
     {
-        // Set the SHA mode, blockSize and digestSize (for applicable ones)
+        /* Set the SHA mode, blockSize and digestSize (for applicable ones) */
         switch (p)
         {
         case WC_SHA3_128_COUNT:
-            // For SHAKE-128 Cy_Crypto_Core_Sha_Update requires mode to be valid (SHA3_224 fits)
+            /* For SHAKE-128 Cy_Crypto_Core_Sha_Update requires mode to be valid (SHA3_224 fits) */
             sha3_ctx->hash_state.mode = CY_CRYPTO_MODE_SHA3_224;
             sha3_ctx->hash_state.blockSize = WC_SHA3_128_COUNT * BITS_IN_BYTE;
             break;
@@ -717,11 +717,11 @@ int wc_Psoc6_Sha3_Update(void* sha3, const byte* data, word32 len, byte p)
             return BAD_FUNC_ARG;
         }
 
-        // Update the init_done flag
+        /* Update the init_done flag */
         sha3_ctx->init_done = true;
     }
 
-    // Perform the SHA calculation input data
+    /* Perform the SHA calculation input data */
     return Cy_Crypto_Core_Sha_Update(crypto_base, &sha3_ctx->hash_state, data, len);
 }
 
@@ -740,140 +740,140 @@ int wc_Psoc6_Sha3_Final(void* sha3, byte padChar, byte* hash, byte p, word32 l)
     word32 offset;
     wc_Sha3* sha3_ctx = (wc_Sha3*)sha3;
 
-    // For KECCCAK256 specific padding
+    /* For KECCCAK256 specific padding */
 #ifdef WOLFSSL_HASH_FLAGS
     if ((p == WC_SHA3_256_COUNT) && (sha3_ctx->flags & WC_HASH_SHA3_KECCAK256))
         padChar = 0x01;
 #endif
 
-    // Apply padding
+    /* Apply padding */
     sha3_ctx->hash_state.hash[sha3_ctx->hash_state.blockIdx] ^= padChar;
     sha3_ctx->hash_state.hash[rate - 1] ^= 0x80;
 
-    // Clear the register buffer
+    /* Clear the register buffer */
     Cy_Crypto_Core_V2_RBClear(crypto_base);
 
-    // Wait until the instruction is complete
+    /* Wait until the instruction is complete */
     Cy_Crypto_Core_V2_Sync(crypto_base);
 
-    // Start streaming data in sha3_ctx->sha_buffers.hash into LOAD_FIFO0
+    /* Start streaming data in sha3_ctx->sha_buffers.hash into LOAD_FIFO0 */
     Cy_Crypto_Core_V2_FFStart(crypto_base, CY_CRYPTO_V2_RB_FF_LOAD0, sha3_ctx->sha_buffers.hash, CY_CRYPTO_SHA3_STATE_SIZE);
 
-    // XOR data present in lower register buffer partition with data streamed from LOAD0_FIF0
+    /* XOR data present in lower register buffer partition with data streamed from LOAD0_FIF0 */
     Cy_Crypto_Core_V2_RBXor(crypto_base, 0U, PSOC6_CRYPTO_SHA3_RB_LOWER);
 
-    // Swap the data present in the two register buffer partitions (swap(reg_buff[1023:0], reg_buff[2047:1024]))
+    /* Swap the data present in the two register buffer partitions (swap(reg_buff[1023:0], reg_buff[2047:1024])) */
     Cy_Crypto_Core_V2_RBSwap(crypto_base);
 
-    // XOR data present in upper register buffer partition with data streamed from LOAD0_FIF0
+    /* XOR data present in upper register buffer partition with data streamed from LOAD0_FIF0 */
     Cy_Crypto_Core_V2_RBXor(crypto_base, 0U, PSOC6_CRYPTO_SHA3_RB_UPPER);
 
-    // Swap the data present in the two register buffer partitions. The recently XOR'ed data will be now present in 2nd partition
+    /* Swap the data present in the two register buffer partitions. The recently XOR'ed data will be now present in 2nd partition */
     Cy_Crypto_Core_V2_RBSwap(crypto_base);
 
-    // Wait until the instruction is complete
+    /* Wait until the instruction is complete */
     Cy_Crypto_Core_V2_Sync(crypto_base);
 
-    // Process full blocks and write output to hash buffer
+    /* Process full blocks and write output to hash buffer */
     for (offset = 0; l - offset >= rate; offset += rate)
     {
         /* Perform SHA3 on current state. */
         Cy_Crypto_Core_V2_Run(crypto_base, sha3_ctx->hash_state.modeHw);
 
-        // Wait until the instruction is complete
+        /* Wait until the instruction is complete */
         Cy_Crypto_Core_V2_Sync(crypto_base);
 
-        // If the rate is more than 128, then we have to copy the data in 2nd partition of register buffer as well
+        /* If the rate is more than 128, then we have to copy the data in 2nd partition of register buffer as well */
         if (rate > PSOC6_CRYPTO_SHA3_RB_LOWER)
         {
-            // Start streaming data in 1st partition of register buffer into hash buffer
+            /* Start streaming data in 1st partition of register buffer into hash buffer */
             Cy_Crypto_Core_V2_FFStart(crypto_base, CY_CRYPTO_V2_RB_FF_STORE, hash + offset, PSOC6_CRYPTO_SHA3_RB_LOWER);
 
-            // Copy the data in register buffer lower partition into hash buffer
+            /* Copy the data in register buffer lower partition into hash buffer */
             Cy_Crypto_Core_V2_RBStore(crypto_base, 0U, PSOC6_CRYPTO_SHA3_RB_LOWER);
 
-            // Wait until FF_STORE operation is completed
+            /* Wait until FF_STORE operation is completed */
             Cy_Crypto_Core_V2_FFStoreSync(crypto_base);
 
-            // Swap the data present in the two register buffer partitions (swap(reg_buff[1023:0], reg_buff[2047:1024]))
+            /* Swap the data present in the two register buffer partitions (swap(reg_buff[1023:0], reg_buff[2047:1024])) */
             Cy_Crypto_Core_V2_RBSwap(crypto_base);
 
-            // Wait until the instruction is complete
+            /* Wait until the instruction is complete */
             Cy_Crypto_Core_V2_Sync(crypto_base);
 
-            // Now the 1st partition have 2nd partition data, start streaming remaining extra data in register buffer into hash buffer
+            /* Now the 1st partition have 2nd partition data, start streaming remaining extra data in register buffer into hash buffer */
             Cy_Crypto_Core_V2_FFStart(crypto_base, CY_CRYPTO_V2_RB_FF_STORE, hash + offset + PSOC6_CRYPTO_SHA3_RB_LOWER,
                 (rate - PSOC6_CRYPTO_SHA3_RB_LOWER));
 
-            // Copy the remaining data in register buffer lower partition into hash buffer
+            /* Copy the remaining data in register buffer lower partition into hash buffer */
             Cy_Crypto_Core_V2_RBStore(crypto_base, 0U, (rate - PSOC6_CRYPTO_SHA3_RB_LOWER));
 
-            // Wait until FF_STORE operation is completed
+            /* Wait until FF_STORE operation is completed */
             Cy_Crypto_Core_V2_FFStoreSync(crypto_base);
 
-            // Swap back the register buffer partitions
+            /* Swap back the register buffer partitions */
             Cy_Crypto_Core_V2_RBSwap(crypto_base);
         }
         else
         {
-            // Start streaming data in 1st partition of register buffer into hash buffer
+            /* Start streaming data in 1st partition of register buffer into hash buffer */
             Cy_Crypto_Core_V2_FFStart(crypto_base, CY_CRYPTO_V2_RB_FF_STORE, hash + offset, rate);
 
-            // Copy the remaining data in register buffer lower partition into hash buffer
+            /* Copy the remaining data in register buffer lower partition into hash buffer */
             Cy_Crypto_Core_V2_RBStore(crypto_base, 0U, rate);
 
-            // Wait until FF_STORE operation is completed
+            /* Wait until FF_STORE operation is completed */
             Cy_Crypto_Core_V2_FFStoreSync(crypto_base);
         }
     }
 
-    // If more data need to be processed
+    /* If more data need to be processed */
     if (offset != l)
     {
         /* Perform SHA3 on current state. */
         Cy_Crypto_Core_V2_Run(crypto_base, sha3_ctx->hash_state.modeHw);
 
-        // Wait until the instruction is complete
+        /* Wait until the instruction is complete */
         Cy_Crypto_Core_V2_Sync(crypto_base);
 
-        // If amount of data to be copied is more than length of register buffer partition (128),
-        // then we have to copy the data in 2nd partition of register buffer as well
+        /* If amount of data to be copied is more than length of register buffer partition (128), */
+        /* then we have to copy the data in 2nd partition of register buffer as well */
         if ((l - offset) > PSOC6_CRYPTO_SHA3_RB_LOWER)
         {
-            // Start streaming data in 1st partition of register buffer into hash buffer
+            /* Start streaming data in 1st partition of register buffer into hash buffer */
             Cy_Crypto_Core_V2_FFStart(crypto_base, CY_CRYPTO_V2_RB_FF_STORE, hash + offset, PSOC6_CRYPTO_SHA3_RB_LOWER);
 
-            // Copy the data in register buffer lower partition into hash buffer
+            /* Copy the data in register buffer lower partition into hash buffer */
             Cy_Crypto_Core_V2_RBStore(crypto_base, 0U, PSOC6_CRYPTO_SHA3_RB_LOWER);
 
-            // Wait until FF_STORE operation is completed
+            /* Wait until FF_STORE operation is completed */
             Cy_Crypto_Core_V2_FFStoreSync(crypto_base);
 
-            // Swap the data present in the two register buffer partitions (swap(reg_buff[1023:0], reg_buff[2047:1024]))
+            /* Swap the data present in the two register buffer partitions (swap(reg_buff[1023:0], reg_buff[2047:1024])) */
             Cy_Crypto_Core_V2_RBSwap(crypto_base);
 
-            // Wait until the instruction is complete
+            /* Wait until the instruction is complete */
             Cy_Crypto_Core_V2_Sync(crypto_base);
 
-            // Now the 1st partition have 2nd partition data, start streaming remaining extra data in register buffer into hash buffer
+            /* Now the 1st partition have 2nd partition data, start streaming remaining extra data in register buffer into hash buffer */
             Cy_Crypto_Core_V2_FFStart(crypto_base, CY_CRYPTO_V2_RB_FF_STORE, hash + offset + PSOC6_CRYPTO_SHA3_RB_LOWER,
                 ((l - offset) - PSOC6_CRYPTO_SHA3_RB_LOWER));
 
-            // Copy the remaining data in register buffer lower partition into hash buffer
+            /* Copy the remaining data in register buffer lower partition into hash buffer */
             Cy_Crypto_Core_V2_RBStore(crypto_base, 0U, ((l - offset) - PSOC6_CRYPTO_SHA3_RB_LOWER));
 
-            // Wait until FF_STORE operation is completed
+            /* Wait until FF_STORE operation is completed */
             Cy_Crypto_Core_V2_FFStoreSync(crypto_base);
         }
         else
         {
-            // Start streaming data in 1st partition of register buffer into hash buffer
+            /* Start streaming data in 1st partition of register buffer into hash buffer */
             Cy_Crypto_Core_V2_FFStart(crypto_base, CY_CRYPTO_V2_RB_FF_STORE, hash + offset, l - offset);
 
-            // Copy the data in register buffer lower partition into hash buffer
+            /* Copy the data in register buffer lower partition into hash buffer */
             Cy_Crypto_Core_V2_RBStore(crypto_base, 0U, l - offset);
 
-            // Wait until FF_STORE operation is completed
+            /* Wait until FF_STORE operation is completed */
             Cy_Crypto_Core_V2_FFStoreSync(crypto_base);
         }
     }
@@ -896,40 +896,40 @@ int wc_Psoc6_Shake_SqueezeBlocks(void* shake, byte* out, word32 blockCnt)
 
     for (; (blockCnt > 0); blockCnt--)
     {
-        // Perform SHA3 on the current state
+        /* Perform SHA3 on the current state */
         Cy_Crypto_Core_V2_Run(crypto_base, shake_ctx->hash_state.modeHw);
 
-        // Wait until the instruction is complete
+        /* Wait until the instruction is complete */
         Cy_Crypto_Core_V2_Sync(crypto_base);
 
-        // Start streaming data in 1st partition of register buffer into hash buffer
+        /* Start streaming data in 1st partition of register buffer into hash buffer */
         Cy_Crypto_Core_V2_FFStart(crypto_base, CY_CRYPTO_V2_RB_FF_STORE, out, PSOC6_CRYPTO_SHA3_RB_LOWER);
 
-        // Copy the data in register buffer lower partition into hash buffer
+        /* Copy the data in register buffer lower partition into hash buffer */
         Cy_Crypto_Core_V2_RBStore(crypto_base, 0U, PSOC6_CRYPTO_SHA3_RB_LOWER);
 
-        // Wait until FF_STORE operation is completed
+        /* Wait until FF_STORE operation is completed */
         Cy_Crypto_Core_V2_FFStoreSync(crypto_base);
 
-        // Swap the data present in the two register buffer partitions (swap(reg_buff[1023:0], reg_buff[2047:1024]))
+        /* Swap the data present in the two register buffer partitions (swap(reg_buff[1023:0], reg_buff[2047:1024])) */
         Cy_Crypto_Core_V2_RBSwap(crypto_base);
 
-        // Wait until the instruction is complete
+        /* Wait until the instruction is complete */
         Cy_Crypto_Core_V2_Sync(crypto_base);
 
-        // Now the 1st partition have 2nd partition data, start streaming remaining extra data in register buffer into hash buffer
+        /* Now the 1st partition have 2nd partition data, start streaming remaining extra data in register buffer into hash buffer */
         Cy_Crypto_Core_V2_FFStart(crypto_base, CY_CRYPTO_V2_RB_FF_STORE, out + PSOC6_CRYPTO_SHA3_RB_LOWER, shake_ctx->hash_state.blockSize - PSOC6_CRYPTO_SHA3_RB_LOWER);
 
-        // Copy the remaining data in register buffer lower partition into hash buffer
+        /* Copy the remaining data in register buffer lower partition into hash buffer */
         Cy_Crypto_Core_V2_RBStore(crypto_base, 0U, shake_ctx->hash_state.blockSize - PSOC6_CRYPTO_SHA3_RB_LOWER);
 
-        // Wait until FF_STORE operation is completed
+        /* Wait until FF_STORE operation is completed */
         Cy_Crypto_Core_V2_FFStoreSync(crypto_base);
 
-        // Swap back the register buffer partitions
+        /* Swap back the register buffer partitions */
         Cy_Crypto_Core_V2_RBSwap(crypto_base);
 
-        // Move to the next block
+        /* Move to the next block */
         out += shake_ctx->hash_state.blockSize;
     }
 
@@ -977,7 +977,7 @@ int psoc6_ecc_verify_hash_ex(MATH_INT_T* r, MATH_INT_T* s, const byte* hash,
     if (!key || !verif_res || !r || !s || !hash)
         return -BAD_FUNC_ARG;
 
-    // Enable CRYPTO block if not enabled
+    /* Enable CRYPTO block if not enabled */
     if (!Cy_Crypto_Core_IsEnabled(crypto_base))
     {
         Cy_Crypto_Core_Enable(crypto_base);
@@ -995,19 +995,19 @@ int psoc6_ecc_verify_hash_ex(MATH_INT_T* r, MATH_INT_T* s, const byte* hash,
     ecc_key.pubkey.x = x;
     ecc_key.pubkey.y = y;
 
-    // If the key is private only, generate the public key before
+    /* If the key is private only, generate the public key before */
     if (key->type == ECC_PRIVATEKEY_ONLY) {
-        // Get the private key as bytes
+        /* Get the private key as bytes */
         res = mp_to_unsigned_bin(&key->k[0], k);
         if (res == MP_OKAY)
         {
-            // Convert the private key into little endian
+            /* Convert the private key into little endian */
             Cy_Crypto_Core_InvertEndianness(k, szModulus);
 
-            // Make the public key from the private key
+            /* Make the public key from the private key */
             res = Cy_Crypto_Core_ECC_MakePublicKey(crypto_base, ecc_key.curveID, k, &ecc_key);
 
-            // Load the public key into the key structure.
+            /* Load the public key into the key structure. */
             if (res == CY_RSLT_SUCCESS) {
                 loadPublicKey = true;
             }
