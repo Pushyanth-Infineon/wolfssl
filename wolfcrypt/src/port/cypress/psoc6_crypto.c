@@ -1041,13 +1041,13 @@ int psoc6_ecc_verify_hash_ex(MATH_INT_T* r, MATH_INT_T* s, const byte* hash,
                              word32 hashlen, int* verif_res,
                              struct ecc_key* key)
 {
-    uint8_t signature_buf[MAX_ECC_KEYSIZE * 2];
+    uint8_t signature_buf[MAX_ECC_KEYSIZE * 2] = { 0 };
     cy_stc_crypto_ecc_key ecc_key;
     bool loadPublicKey = false;
     uint8_t stat       = 0;
     int res            = -1;
-    int szModulus;
-    int szkbin;
+    int keySz;
+    int rSz, sSz, qxSz, qySz;
     uint8_t x[MAX_ECC_KEYSIZE] = { 0 };
     uint8_t y[MAX_ECC_KEYSIZE] = { 0 };
     uint8_t k[MAX_ECC_KEYSIZE] = { 0 };
@@ -1060,14 +1060,16 @@ int psoc6_ecc_verify_hash_ex(MATH_INT_T* r, MATH_INT_T* s, const byte* hash,
         Cy_Crypto_Core_Enable(crypto_base);
     }
 
-    szModulus = wc_ecc_size(key);
-    szkbin    = mp_unsigned_bin_size(r);
-    if (szModulus > MAX_ECC_KEYSIZE)
+    keySz = wc_ecc_size(key);
+    rSz   = mp_unsigned_bin_size(r);
+    sSz   = mp_unsigned_bin_size(s);
+
+    if (keySz > MAX_ECC_KEYSIZE)
         return -BAD_FUNC_ARG;
 
     /* Prepare ECC key */
     ecc_key.type     = PK_PUBLIC;
-    ecc_key.curveID  = psoc6_get_curve_id(szModulus);
+    ecc_key.curveID  = psoc6_get_curve_id(keySz);
     ecc_key.k        = NULL;
     ecc_key.pubkey.x = x;
     ecc_key.pubkey.y = y;
@@ -1075,10 +1077,10 @@ int psoc6_ecc_verify_hash_ex(MATH_INT_T* r, MATH_INT_T* s, const byte* hash,
     /* If the key is private only, generate the public key before */
     if (key->type == ECC_PRIVATEKEY_ONLY) {
         /* Get the private key as bytes */
-        res = mp_to_unsigned_bin(&key->k[0], k);
+        res = mp_to_unsigned_bin(ecc_get_k(key), k);
         if (res == MP_OKAY) {
             /* Convert the private key into little endian */
-            Cy_Crypto_Core_InvertEndianness(k, szModulus);
+            Cy_Crypto_Core_InvertEndianness(k, keySz);
 
             /* Make the public key from the private key */
             res = Cy_Crypto_Core_ECC_MakePublicKey(crypto_base, ecc_key.curveID,
@@ -1095,49 +1097,68 @@ int psoc6_ecc_verify_hash_ex(MATH_INT_T* r, MATH_INT_T* s, const byte* hash,
         }
     }
     else {
+        qxSz = mp_unsigned_bin_size(key->pubkey.x);
+        qySz = mp_unsigned_bin_size(key->pubkey.y);
+
         res = mp_to_unsigned_bin(key->pubkey.x, x);
         if (res == MP_OKAY) {
             res = mp_to_unsigned_bin(key->pubkey.y, y);
-            Cy_Crypto_Core_InvertEndianness(x, szModulus);
-            Cy_Crypto_Core_InvertEndianness(y, szModulus);
+            if (res == MP_OKAY) {
+                Cy_Crypto_Core_InvertEndianness(x, qxSz);
+                Cy_Crypto_Core_InvertEndianness(y, qySz);
+            }
         }
     }
 
-    /* Prepare signature buffer */
+    /* Note: keySz is used for the offset of the s component in signature_buf
+     * because the hardware expects r and s to be packed as [r (keySz bytes)][s
+     * (keySz bytes)]. However, rSz and sSz are used for endianness conversion
+     * since they represent the actual sizes of the r and s values as produced
+     * by mp_to_unsigned_bin.
+     */
     if (res == MP_OKAY) {
+        /* Copy r component */
         res = mp_to_unsigned_bin(r, signature_buf);
-    }
-
-    if (res == MP_OKAY) {
-        res = mp_to_unsigned_bin(s, signature_buf + szkbin);
-        Cy_Crypto_Core_InvertEndianness(signature_buf, szkbin);
-        Cy_Crypto_Core_InvertEndianness(signature_buf + szkbin, szkbin);
+        if (res == MP_OKAY) {
+            /* Copy s component. */
+            res = mp_to_unsigned_bin(s, signature_buf + keySz);
+            if (res == MP_OKAY) {
+                /* Convert to little endian */
+                Cy_Crypto_Core_InvertEndianness(signature_buf, rSz);
+                Cy_Crypto_Core_InvertEndianness(signature_buf + keySz, sSz);
+            }
+        }
     }
 
     /* perform HW ECDSA */
     if (res == MP_OKAY) {
         res = Cy_Crypto_Core_ECC_VerifyHash(crypto_base, signature_buf, hash,
                                             hashlen, &stat, &ecc_key);
-    }
-    if (res == 0) {
-        *verif_res = stat;
+        if (res == CY_RSLT_SUCCESS) {
+            *verif_res = stat;
 
-        if (loadPublicKey == true) {
-            Cy_Crypto_Core_InvertEndianness(ecc_key.pubkey.x, szModulus);
-            Cy_Crypto_Core_InvertEndianness(ecc_key.pubkey.y, szModulus);
-            res = sp_read_unsigned_bin(&key->pubkey.x[0], ecc_key.pubkey.x,
-                                       szModulus);
-            if (res == MP_OKAY) {
-                res = sp_read_unsigned_bin(&key->pubkey.y[0], ecc_key.pubkey.y,
-                                           szModulus);
-            }
+            if (loadPublicKey == true) {
+                Cy_Crypto_Core_InvertEndianness(ecc_key.pubkey.x, keySz);
+                Cy_Crypto_Core_InvertEndianness(ecc_key.pubkey.y, keySz);
+                res = mp_read_unsigned_bin(key->pubkey.x, ecc_key.pubkey.x,
+                                           keySz);
+                if (res == MP_OKAY) {
+                    res = mp_read_unsigned_bin(key->pubkey.y, ecc_key.pubkey.y,
+                                               keySz);
+                }
 
-            if (res == MP_OKAY) {
-                key->type = ECC_PRIVATEKEY;
+                if (res == MP_OKAY) {
+                    key->type = ECC_PRIVATEKEY;
+                }
             }
         }
+        else {
+            res = WC_FAILURE;
+        }
+        return res;
     }
-    return res;
+
+    return WC_FAILURE;
 }
 #endif /* HAVE_ECC */
 
